@@ -39,6 +39,9 @@ function NavItem({
       >
         <Icon className="size-4" />
         {label}
+        <span className="ml-auto rounded-md bg-destructive px-1.5 py-0.5 text-[10px] font-medium text-white">
+          Em breve
+        </span>
       </span>
     )
   }
