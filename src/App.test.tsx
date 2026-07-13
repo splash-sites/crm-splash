@@ -22,12 +22,12 @@ describe('App', () => {
     expect(await screen.findByText('Página não encontrada')).toBeInTheDocument()
   })
 
-  it('mostra página não encontrada pra raiz "/"', async () => {
+  it('redireciona raiz "/" pra login quando não há sessão', async () => {
     render(
       <MemoryRouter initialEntries={['/']}>
         <App />
       </MemoryRouter>
     )
-    expect(await screen.findByText('Página não encontrada')).toBeInTheDocument()
+    expect(await screen.findByText('Não tem conta?', { exact: false })).toBeInTheDocument()
   })
 })

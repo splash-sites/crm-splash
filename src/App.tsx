@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { Toaster } from '@/components/ui/sonner'
 import { AuthProvider } from '@/shared/hooks/useAuth'
 import { ThemeProvider } from '@/shared/hooks/useTheme'
@@ -17,6 +17,14 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <Routes>
+          <Route
+            path="/"
+            element={
+              <RequireAuth>
+                <Navigate to="/dashboard" replace />
+              </RequireAuth>
+            }
+          />
           <Route path="/login" element={<Login />} />
           <Route path="/cadastro" element={<Cadastro />} />
           <Route
