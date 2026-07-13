@@ -38,7 +38,7 @@ describe('AppShell', () => {
       session: { user: { email: 'ana@example.com', user_metadata: { nome: 'Ana' } } },
     })
     renderShell(<p>conteúdo da página</p>)
-    expect(screen.getByText('Venda.ai')).toBeInTheDocument()
+    expect(screen.getByText('Vende.ai')).toBeInTheDocument()
     expect(screen.getByText('Ana')).toBeInTheDocument()
     expect(screen.getByText('A')).toBeInTheDocument()
     expect(screen.getByText('Funil de leads')).toBeInTheDocument()
