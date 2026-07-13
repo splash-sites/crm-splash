@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
+import { mesmaData } from '@/shared/lib/dates'
 import type { Lead } from '@/shared/types/lead'
+import { diasComFollowUp, leadsDoDia } from '../lib/followupHelpers'
 import { precisaFalarHoje } from '../lib/precisaFalarHoje'
 import { listLeadsAtivos, marcarContatoHoje } from '../services/followupService'
 
 export function useFollowUp() {
-  const [leads, setLeads] = useState<Lead[]>([])
+  const [ativos, setAtivos] = useState<Lead[]>([])
+  const [diaSelecionado, setDiaSelecionado] = useState(new Date())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -12,9 +15,7 @@ export function useFollowUp() {
     setLoading(true)
     setError(null)
     try {
-      const ativos = await listLeadsAtivos()
-      const agora = new Date()
-      setLeads(ativos.filter((lead) => precisaFalarHoje(lead, agora)))
+      setAtivos(await listLeadsAtivos())
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar leads')
     } finally {
@@ -26,8 +27,14 @@ export function useFollowUp() {
     refresh()
   }, [refresh])
 
+  const agora = new Date()
+  const diasComLead = diasComFollowUp(ativos)
+  const leads = mesmaData(diaSelecionado, agora)
+    ? ativos.filter((lead) => precisaFalarHoje(lead, agora))
+    : leadsDoDia(ativos, diaSelecionado)
+
   async function marcarContatado(lead: Lead) {
-    setLeads((prev) => prev.filter((l) => l.id !== lead.id))
+    setAtivos((prev) => prev.filter((l) => l.id !== lead.id))
     try {
       await marcarContatoHoje(lead)
     } catch (err) {
@@ -36,5 +43,13 @@ export function useFollowUp() {
     }
   }
 
-  return { leads, loading, error, marcarContatado }
+  return {
+    leads,
+    diasComLead,
+    diaSelecionado,
+    selecionarDia: setDiaSelecionado,
+    loading,
+    error,
+    marcarContatado,
+  }
 }

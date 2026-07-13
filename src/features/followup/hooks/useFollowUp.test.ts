@@ -56,6 +56,38 @@ describe('useFollowUp', () => {
     expect(result.current.leads).toEqual([vencido])
   })
 
+  it('ao selecionar um dia futuro, mostra só leads que vencem naquele dia exato', async () => {
+    const amanha = new Date()
+    amanha.setDate(amanha.getDate() + 1)
+    const depoisDeAmanha = new Date()
+    depoisDeAmanha.setDate(depoisDeAmanha.getDate() + 2)
+
+    const venceAmanha = leadBase({ id: '1', proximo_contato_em: amanha.toISOString() })
+    const venceDepois = leadBase({ id: '2', proximo_contato_em: depoisDeAmanha.toISOString() })
+    listLeadsAtivosMock.mockResolvedValue([venceAmanha, venceDepois])
+
+    const { result } = renderHook(() => useFollowUp())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    act(() => result.current.selecionarDia(amanha))
+
+    expect(result.current.leads.map((l) => l.id)).toEqual(['1'])
+  })
+
+  it('diasComLead retorna um dia por proximo_contato_em distinto', async () => {
+    const leads = [
+      leadBase({ id: '1', proximo_contato_em: '2020-01-01T09:00:00.000Z' }),
+      leadBase({ id: '2', proximo_contato_em: '2020-01-01T20:00:00.000Z' }),
+      leadBase({ id: '3', proximo_contato_em: '2020-01-02T09:00:00.000Z' }),
+    ]
+    listLeadsAtivosMock.mockResolvedValue(leads)
+
+    const { result } = renderHook(() => useFollowUp())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    expect(result.current.diasComLead).toHaveLength(2)
+  })
+
   it('marcarContatado remove o lead da lista e chama o service', async () => {
     const lead = leadBase()
     listLeadsAtivosMock.mockResolvedValue([lead])

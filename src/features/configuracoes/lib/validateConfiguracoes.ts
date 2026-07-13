@@ -6,6 +6,7 @@ export type ConfiguracoesErrors = Partial<Record<keyof PerfilInput, string>>
 export const CONFIG_LIMITS = {
   nome: { max: 100 },
   diasParaContatoPadrao: { min: 1, max: 365 },
+  horario: { min: 0, max: 23 },
 } as const
 
 export function validateConfiguracoes(input: PerfilInput): ConfiguracoesErrors {
@@ -30,6 +31,26 @@ export function validateConfiguracoes(input: PerfilInput): ConfiguracoesErrors {
     ) {
       errors.dias_para_contato_padrao = `Precisa ser um número entre ${CONFIG_LIMITS.diasParaContatoPadrao.min} e ${CONFIG_LIMITS.diasParaContatoPadrao.max}`
     }
+  }
+
+  const { horario_inicio, horario_fim } = input
+  const horarioInvalido = (hora: number) =>
+    !Number.isInteger(hora) || hora < CONFIG_LIMITS.horario.min || hora > CONFIG_LIMITS.horario.max
+
+  if (horario_inicio !== undefined && horarioInvalido(horario_inicio)) {
+    errors.horario_inicio = `Precisa ser um número entre ${CONFIG_LIMITS.horario.min} e ${CONFIG_LIMITS.horario.max}`
+  }
+  if (horario_fim !== undefined && horarioInvalido(horario_fim)) {
+    errors.horario_fim = `Precisa ser um número entre ${CONFIG_LIMITS.horario.min} e ${CONFIG_LIMITS.horario.max}`
+  }
+  if (
+    horario_inicio !== undefined &&
+    horario_fim !== undefined &&
+    !errors.horario_inicio &&
+    !errors.horario_fim &&
+    horario_inicio >= horario_fim
+  ) {
+    errors.horario_fim = 'Precisa ser depois do horário inicial'
   }
 
   return errors

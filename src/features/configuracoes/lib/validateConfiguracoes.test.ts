@@ -34,4 +34,22 @@ describe('validateConfiguracoes', () => {
   it('aceita dias_para_contato_padrao dentro do intervalo', () => {
     expect(validateConfiguracoes({ dias_para_contato_padrao: 7 })).toEqual({})
   })
+
+  it('rejeita horario_inicio ou horario_fim fora de 0-23', () => {
+    expect(validateConfiguracoes({ horario_inicio: -1 })).toHaveProperty('horario_inicio')
+    expect(validateConfiguracoes({ horario_fim: 24 })).toHaveProperty('horario_fim')
+  })
+
+  it('rejeita quando horario_fim não é depois do horario_inicio', () => {
+    expect(
+      validateConfiguracoes({ horario_inicio: 10, horario_fim: 10 })
+    ).toHaveProperty('horario_fim')
+    expect(
+      validateConfiguracoes({ horario_inicio: 15, horario_fim: 10 })
+    ).toHaveProperty('horario_fim')
+  })
+
+  it('aceita horario_inicio e horario_fim válidos', () => {
+    expect(validateConfiguracoes({ horario_inicio: 8, horario_fim: 18 })).toEqual({})
+  })
 })

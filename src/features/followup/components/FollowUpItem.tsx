@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { WhatsAppLink } from '@/shared/components/WhatsAppLink'
 import { ETAPA_BADGE_CLASSES, ETAPA_LABELS, FAIXA_PRECO_LABELS } from '@/shared/lib/leadLabels'
-import { maskTelefone } from '@/shared/lib/telefoneMask'
 import type { Lead } from '@/shared/types/lead'
 import { diasSemUltimoContato } from '../lib/precisaFalarHoje'
 
@@ -29,7 +29,7 @@ export function FollowUpItem({ lead, agora, onContatado }: FollowUpItemProps) {
             {ETAPA_LABELS[lead.etapa]}
           </span>
         </div>
-        <p className="text-sm text-muted-foreground">{maskTelefone(lead.telefone)}</p>
+        <WhatsAppLink telefone={lead.telefone} className="block text-sm text-muted-foreground" />
         <p className="text-xs text-muted-foreground">
           {diasSemUltimoContato(lead, agora)} dias sem contato
         </p>

@@ -10,6 +10,7 @@ describe('Sidebar', () => {
         <Sidebar />
       </MemoryRouter>
     )
+    expect(screen.getByText('Dashboard')).toBeInTheDocument()
     expect(screen.getByText('Funil de leads')).toBeInTheDocument()
     expect(screen.getByText('Falar hoje')).toBeInTheDocument()
     expect(screen.getByText('Agenda de visitas')).toBeInTheDocument()
@@ -17,19 +18,27 @@ describe('Sidebar', () => {
     expect(screen.getByText('Configurações')).toBeInTheDocument()
   })
 
-  it('"Funil de leads" e "Falar hoje" são links navegáveis, resto fica desabilitado', () => {
+  it('links navegáveis apontam pras rotas certas, "Conversas" fica desabilitado', () => {
     render(
       <MemoryRouter>
         <Sidebar />
       </MemoryRouter>
     )
-    expect(screen.getByRole('link', { name: /Funil de leads/ })).toHaveAttribute('href', '/')
+    expect(screen.getByRole('link', { name: /Dashboard/ })).toHaveAttribute('href', '/dashboard')
+    expect(screen.getByRole('link', { name: /Funil de leads/ })).toHaveAttribute(
+      'href',
+      '/funil'
+    )
     expect(screen.getByRole('link', { name: /Falar hoje/ })).toHaveAttribute(
       'href',
       '/falar-hoje'
     )
-    expect(screen.queryByRole('link', { name: /Agenda de visitas/ })).not.toBeInTheDocument()
-    expect(screen.getByText('Agenda de visitas').closest('span')).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /Agenda de visitas/ })).toHaveAttribute(
+      'href',
+      '/agenda'
+    )
+    expect(screen.queryByRole('link', { name: /Conversas/ })).not.toBeInTheDocument()
+    expect(screen.getByText('Conversas').closest('span')).toHaveAttribute(
       'aria-disabled',
       'true'
     )

@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import type { ReactNode } from 'react'
 import { MemoryRouter } from 'react-router-dom'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { ThemeProvider } from '@/shared/hooks/useTheme'
 
 const useAuthMock = vi.fn()
 vi.mock('@/shared/hooks/useAuth', () => ({
@@ -15,18 +17,27 @@ vi.mock('@/features/auth/services/authService', () => ({
 
 const { AppShell } = await import('./AppShell')
 
+function renderShell(children: ReactNode) {
+  return render(
+    <MemoryRouter>
+      <ThemeProvider>
+        <AppShell>{children}</AppShell>
+      </ThemeProvider>
+    </MemoryRouter>
+  )
+}
+
+beforeEach(() => {
+  localStorage.clear()
+  document.documentElement.classList.remove('dark')
+})
+
 describe('AppShell', () => {
   it('mostra o nome do usuário logado, sidebar e o conteúdo filho', () => {
     useAuthMock.mockReturnValue({
       session: { user: { email: 'ana@example.com', user_metadata: { nome: 'Ana' } } },
     })
-    render(
-      <MemoryRouter>
-        <AppShell>
-          <p>conteúdo da página</p>
-        </AppShell>
-      </MemoryRouter>
-    )
+    renderShell(<p>conteúdo da página</p>)
     expect(screen.getByText('Venda.ai')).toBeInTheDocument()
     expect(screen.getByText('Ana')).toBeInTheDocument()
     expect(screen.getByText('A')).toBeInTheDocument()
@@ -38,13 +49,7 @@ describe('AppShell', () => {
     useAuthMock.mockReturnValue({
       session: { user: { email: 'ana@example.com', user_metadata: {} } },
     })
-    render(
-      <MemoryRouter>
-        <AppShell>
-          <p>conteúdo</p>
-        </AppShell>
-      </MemoryRouter>
-    )
+    renderShell(<p>conteúdo</p>)
     expect(screen.getByText('ana@example.com')).toBeInTheDocument()
   })
 
@@ -53,13 +58,7 @@ describe('AppShell', () => {
       session: { user: { email: 'ana@example.com', user_metadata: { nome: 'Ana' } } },
     })
     const user = userEvent.setup()
-    render(
-      <MemoryRouter>
-        <AppShell>
-          <p>conteúdo</p>
-        </AppShell>
-      </MemoryRouter>
-    )
+    renderShell(<p>conteúdo</p>)
 
     await user.click(screen.getByText('Ana'))
     const sairItem = await screen.findByText('Sair')

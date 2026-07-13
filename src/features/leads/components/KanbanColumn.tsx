@@ -1,7 +1,7 @@
 import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { cn } from '@/lib/utils'
-import { ETAPA_BADGE_CLASSES, ETAPA_LABELS } from '@/shared/lib/leadLabels'
+import { ETAPA_LABELS } from '@/shared/lib/leadLabels'
 import type { Etapa, Lead } from '@/shared/types/lead'
 import { LeadCard } from './LeadCard'
 
@@ -20,8 +20,7 @@ export function KanbanColumn({ etapa, leads, onDeleteLead, onEditLead }: KanbanC
       ref={setNodeRef}
       data-testid={`kanban-column-${etapa}`}
       className={cn(
-        'flex min-h-28 w-64 shrink-0 flex-col gap-2 rounded-xl p-2.5 transition-colors',
-        ETAPA_BADGE_CLASSES[etapa],
+        'flex min-h-28 w-64 shrink-0 flex-col gap-2 rounded-xl bg-muted p-2.5 transition-colors',
         isOver && 'bg-accent'
       )}
     >

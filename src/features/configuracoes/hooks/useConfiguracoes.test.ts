@@ -17,6 +17,8 @@ const perfilBase: Perfil = {
   nome: 'Ana',
   telefone: '11999999999',
   dias_para_contato_padrao: 3,
+  horario_inicio: 7,
+  horario_fim: 20,
   created_at: '2026-01-01T00:00:00.000Z',
 }
 

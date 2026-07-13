@@ -9,6 +9,8 @@ const perfil: Perfil = {
   nome: 'Ana',
   telefone: '11999999999',
   dias_para_contato_padrao: 3,
+  horario_inicio: 7,
+  horario_fim: 20,
   created_at: '2026-01-01T00:00:00.000Z',
 }
 
@@ -18,6 +20,22 @@ describe('ConfiguracoesForm', () => {
     expect(screen.getByLabelText('Nome')).toHaveValue('Ana')
     expect(screen.getByLabelText('Telefone')).toHaveValue('(11) 99999-9999')
     expect(screen.getByLabelText('Dias padrão pro próximo contato')).toHaveValue(3)
+    expect(screen.getByLabelText('Horário inicial')).toHaveValue(7)
+    expect(screen.getByLabelText('Horário final')).toHaveValue(20)
+  })
+
+  it('bloqueia salvar com horário final antes do inicial', async () => {
+    const onSave = vi.fn()
+    const user = userEvent.setup()
+    render(<ConfiguracoesForm perfil={perfil} onSave={onSave} />)
+
+    const fimInput = screen.getByLabelText('Horário final')
+    await user.clear(fimInput)
+    await user.type(fimInput, '5')
+    await user.click(screen.getByRole('button', { name: 'Salvar' }))
+
+    expect(await screen.findByText(/depois do horário inicial/)).toBeInTheDocument()
+    expect(onSave).not.toHaveBeenCalled()
   })
 
   it('salva os campos alterados', async () => {

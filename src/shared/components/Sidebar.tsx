@@ -1,11 +1,19 @@
-import { CalendarDays, Kanban, MessageCircle, PhoneCall, Settings } from 'lucide-react'
+import {
+  CalendarDays,
+  Kanban,
+  LayoutDashboard,
+  MessageCircle,
+  PhoneCall,
+  Settings,
+} from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 
 const NAV_ITEMS = [
-  { label: 'Funil de leads', icon: Kanban, to: '/' },
+  { label: 'Dashboard', icon: LayoutDashboard, to: '/dashboard' },
+  { label: 'Funil de leads', icon: Kanban, to: '/funil' },
   { label: 'Falar hoje', icon: PhoneCall, to: '/falar-hoje' },
-  { label: 'Agenda de visitas', icon: CalendarDays, to: null },
+  { label: 'Agenda de visitas', icon: CalendarDays, to: '/agenda' },
   { label: 'Conversas', icon: MessageCircle, to: null },
 ] as const
 
@@ -56,14 +64,16 @@ function NavItem({
 
 export function Sidebar() {
   return (
-    <nav className="flex w-56 shrink-0 flex-col gap-1 border-r border-border p-3">
+    <nav className="flex w-56 shrink-0 flex-col gap-1 overflow-y-auto border-r border-border p-3">
       {NAV_ITEMS.map((item) => (
         <NavItem key={item.label} {...item} />
       ))}
       <div className="flex-1" />
-      {BOTTOM_NAV_ITEMS.map((item) => (
-        <NavItem key={item.label} {...item} />
-      ))}
+      <div className="flex flex-col gap-1 border-t border-border pt-2">
+        {BOTTOM_NAV_ITEMS.map((item) => (
+          <NavItem key={item.label} {...item} />
+        ))}
+      </div>
     </nav>
   )
 }

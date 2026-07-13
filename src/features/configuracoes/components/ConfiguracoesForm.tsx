@@ -20,6 +20,8 @@ function fromPerfil(perfil: Perfil): PerfilInput {
     nome: perfil.nome ?? '',
     telefone: perfil.telefone ?? '',
     dias_para_contato_padrao: perfil.dias_para_contato_padrao,
+    horario_inicio: perfil.horario_inicio,
+    horario_fim: perfil.horario_fim,
   }
 }
 
@@ -115,6 +117,52 @@ export function ConfiguracoesForm({ perfil, onSave }: ConfiguracoesFormProps) {
         {fieldErrors.dias_para_contato_padrao && (
           <p id="config-dias-error" role="alert" className="text-xs text-destructive">
             {fieldErrors.dias_para_contato_padrao}
+          </p>
+        )}
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <Label>Horário da agenda de visitas</Label>
+        <div className="flex items-center gap-2">
+          <Input
+            id="config-horario-inicio"
+            type="number"
+            min={CONFIG_LIMITS.horario.min}
+            max={CONFIG_LIMITS.horario.max}
+            value={form.horario_inicio ?? ''}
+            onChange={(e) => field('horario_inicio', Number(e.target.value))}
+            aria-invalid={Boolean(fieldErrors.horario_inicio)}
+            aria-describedby={
+              fieldErrors.horario_inicio ? 'config-horario-inicio-error' : undefined
+            }
+            aria-label="Horário inicial"
+            className="w-20"
+          />
+          <span className="text-sm text-muted-foreground">até</span>
+          <Input
+            id="config-horario-fim"
+            type="number"
+            min={CONFIG_LIMITS.horario.min}
+            max={CONFIG_LIMITS.horario.max}
+            value={form.horario_fim ?? ''}
+            onChange={(e) => field('horario_fim', Number(e.target.value))}
+            aria-invalid={Boolean(fieldErrors.horario_fim)}
+            aria-describedby={fieldErrors.horario_fim ? 'config-horario-fim-error' : undefined}
+            aria-label="Horário final"
+            className="w-20"
+          />
+          <span className="text-sm text-muted-foreground">horas</span>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Faixa de horário exibida na Agenda de visitas (0 a 23h).
+        </p>
+        {fieldErrors.horario_inicio && (
+          <p id="config-horario-inicio-error" role="alert" className="text-xs text-destructive">
+            {fieldErrors.horario_inicio}
+          </p>
+        )}
+        {fieldErrors.horario_fim && (
+          <p id="config-horario-fim-error" role="alert" className="text-xs text-destructive">
+            {fieldErrors.horario_fim}
           </p>
         )}
       </div>

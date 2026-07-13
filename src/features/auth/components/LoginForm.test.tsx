@@ -45,7 +45,7 @@ describe('LoginForm', () => {
     expect(signInMock).toHaveBeenCalledWith('a@a.com', '123456', false)
   })
 
-  it('navega pra "/" depois de logar com sucesso', async () => {
+  it('navega pra "/dashboard" depois de logar com sucesso', async () => {
     signInMock.mockResolvedValue(undefined)
     const user = userEvent.setup()
     render(<LoginForm />)
@@ -54,7 +54,7 @@ describe('LoginForm', () => {
     await user.type(screen.getByLabelText('Senha'), '123456')
     await user.click(screen.getByRole('button', { name: 'Entrar' }))
 
-    expect(navigateMock).toHaveBeenCalledWith('/')
+    expect(navigateMock).toHaveBeenCalledWith('/dashboard')
   })
 
   it('não navega quando signIn falha', async () => {

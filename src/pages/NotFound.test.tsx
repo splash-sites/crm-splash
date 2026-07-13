@@ -13,7 +13,7 @@ describe('NotFound', () => {
     expect(screen.getByText('Página não encontrada')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Voltar para o início' })).toHaveAttribute(
       'href',
-      '/'
+      '/dashboard'
     )
   })
 })

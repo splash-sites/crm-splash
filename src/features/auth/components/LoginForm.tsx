@@ -20,7 +20,7 @@ export function LoginForm() {
     setSubmitting(true)
     try {
       await signIn(email, password, rememberMe)
-      navigate('/')
+      navigate('/dashboard')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao entrar')
     } finally {

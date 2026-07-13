@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { maskTelefone } from '@/shared/lib/telefoneMask'
+import { WhatsAppLink } from '@/shared/components/WhatsAppLink'
 import type { Lead } from '@/shared/types/lead'
 
 type LeadCardProps = {
@@ -54,16 +54,21 @@ export function LeadCard({ lead, onDelete, onEdit }: LeadCardProps) {
         >
           <GripVertical className="size-4" />
         </button>
-        <button
-          type="button"
-          className="min-w-0 flex-1 cursor-pointer rounded text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-          aria-label={`Editar ${lead.nome}`}
-          title={lead.nome}
-          onClick={() => onEdit(lead)}
-        >
-          <span className="block truncate font-medium">{lead.nome}</span>
-          <span className="block text-muted-foreground">{maskTelefone(lead.telefone)}</span>
-        </button>
+        <div className="min-w-0 flex-1">
+          <button
+            type="button"
+            className="block w-full cursor-pointer rounded text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+            aria-label={`Editar ${lead.nome}`}
+            title={lead.nome}
+            onClick={() => onEdit(lead)}
+          >
+            <span className="block truncate font-medium">{lead.nome}</span>
+          </button>
+          <WhatsAppLink
+            telefone={lead.telefone}
+            className="block text-muted-foreground hover:text-foreground"
+          />
+        </div>
       </div>
       <AlertDialog>
         <AlertDialogTrigger

@@ -3,6 +3,8 @@ export type Perfil = {
   nome: string | null
   telefone: string | null
   dias_para_contato_padrao: number
+  horario_inicio: number
+  horario_fim: number
   created_at: string
 }
 
@@ -10,4 +12,6 @@ export type PerfilInput = {
   nome?: string | null
   telefone?: string | null
   dias_para_contato_padrao?: number
+  horario_inicio?: number
+  horario_fim?: number
 }

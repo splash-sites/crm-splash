@@ -12,6 +12,15 @@ vi.mock('../services/leadsService', () => ({
   listBairros: vi.fn().mockResolvedValue([]),
 }))
 
+const toastSuccessMock = vi.fn()
+const toastErrorMock = vi.fn()
+vi.mock('sonner', () => ({
+  toast: {
+    success: (...args: unknown[]) => toastSuccessMock(...args),
+    error: (...args: unknown[]) => toastErrorMock(...args),
+  },
+}))
+
 const { KanbanBoard } = await import('./KanbanBoard')
 
 const lead: Lead = {
@@ -94,6 +103,18 @@ describe('KanbanBoard', () => {
     const buttons = screen.getAllByRole('button', { name: 'Excluir' })
     await user.click(buttons[buttons.length - 1])
     expect(removeLead).toHaveBeenCalledWith('1')
+    expect(toastSuccessMock).toHaveBeenCalledWith('Lead excluído com sucesso.')
+  })
+
+  it('mostra toast de erro quando removeLead falha', async () => {
+    const removeLead = vi.fn().mockRejectedValue(new Error('falhou'))
+    mockUseLeads({ removeLead })
+    const user = userEvent.setup()
+    render(<KanbanBoard />)
+    await user.click(screen.getByRole('button', { name: 'Excluir' }))
+    const buttons = screen.getAllByRole('button', { name: 'Excluir' })
+    await user.click(buttons[buttons.length - 1])
+    expect(toastErrorMock).toHaveBeenCalledWith('falhou')
   })
 
   it('cancela exclusão sem chamar removeLead', async () => {
@@ -110,7 +131,7 @@ describe('KanbanBoard', () => {
     mockUseLeads()
     const user = userEvent.setup()
     render(<KanbanBoard />)
-    await user.click(screen.getByRole('button', { name: 'Novo Lead' }))
+    await user.click(screen.getByRole('button', { name: '+ Novo Lead' }))
     expect(screen.getByText('Novo lead', { selector: '[data-slot="dialog-title"]' })).toBeInTheDocument()
     expect(screen.getByLabelText('Nome')).toHaveValue('')
   })
@@ -137,5 +158,18 @@ describe('KanbanBoard', () => {
       '1',
       expect.objectContaining({ nome: 'Ana Paula', telefone: '11999999999' })
     )
+  })
+
+  it('mostra toast ao cadastrar um lead novo', async () => {
+    const addLead = vi.fn().mockResolvedValue(undefined)
+    mockUseLeads({ addLead })
+    const user = userEvent.setup()
+    render(<KanbanBoard />)
+    await user.click(screen.getByRole('button', { name: '+ Novo Lead' }))
+    await user.type(screen.getByLabelText('Nome'), 'Bruno')
+    await user.type(screen.getByLabelText('Telefone'), '11988887777')
+    await user.click(screen.getByRole('button', { name: 'Salvar' }))
+    expect(addLead).toHaveBeenCalled()
+    expect(toastSuccessMock).toHaveBeenCalledWith('Lead cadastrado com sucesso.')
   })
 })

@@ -6,10 +6,11 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from '@dnd-kit/core'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { useLeads } from '../hooks/useLeads'
 import { resolveDrop } from '../lib/resolveDrop'
-import { ETAPAS, type Lead } from '@/shared/types/lead'
+import { ETAPAS, type Lead, type LeadInput } from '@/shared/types/lead'
 import { KanbanColumn } from './KanbanColumn'
 import { LeadCardPreview } from './LeadCardPreview'
 import { LeadFormDialog } from './LeadFormDialog'
@@ -40,13 +41,31 @@ export function KanbanBoard() {
     setDialogOpen(true)
   }
 
+  async function handleSubmit(input: LeadInput) {
+    if (editingLead) {
+      await editLead(editingLead.id, input)
+    } else {
+      await addLead(input)
+      toast.success('Lead cadastrado com sucesso.')
+    }
+  }
+
+  async function handleDeleteLead(id: string) {
+    try {
+      await removeLead(id)
+      toast.success('Lead excluído com sucesso.')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao excluir lead.')
+    }
+  }
+
   if (loading) return <p className="p-4 text-muted-foreground">Carregando leads...</p>
 
   return (
     <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-medium">Funil de leads</h1>
-        <Button onClick={openCreateDialog}>Novo Lead</Button>
+        <Button onClick={openCreateDialog}>+ Novo Lead</Button>
       </div>
       {error && (
         <p role="alert" className="text-sm text-destructive">
@@ -66,7 +85,7 @@ export function KanbanBoard() {
               leads={leads
                 .filter((lead) => lead.etapa === etapa)
                 .sort((a, b) => a.posicao - b.posicao)}
-              onDeleteLead={removeLead}
+              onDeleteLead={handleDeleteLead}
               onEditLead={openEditDialog}
             />
           ))}
@@ -77,7 +96,7 @@ export function KanbanBoard() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         lead={editingLead}
-        onSubmit={(input) => (editingLead ? editLead(editingLead.id, input) : addLead(input))}
+        onSubmit={handleSubmit}
       />
     </div>
   )
