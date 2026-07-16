@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { DashboardLead, DashboardVisita } from '../types/dashboard'
+import type { DashboardLead } from '../types/dashboard'
 import { calcularFunil, calcularKpis, calcularOrigem, calcularTendencia } from './dashboardMetrics'
 
 function lead(overrides: Partial<DashboardLead> = {}): DashboardLead {
@@ -12,29 +12,21 @@ function lead(overrides: Partial<DashboardLead> = {}): DashboardLead {
   }
 }
 
-function visita(overrides: Partial<DashboardVisita> = {}): DashboardVisita {
-  return {
-    status: 'agendada',
-    data_hora: '2026-01-05T12:00:00.000Z',
-    ...overrides,
-  }
-}
-
 describe('calcularKpis', () => {
-  it('conta leads ativos (exclui fechado/perdido)', () => {
-    const leads = [lead({ etapa: 'novo' }), lead({ etapa: 'fechado' }), lead({ etapa: 'perdido' })]
-    const kpis = calcularKpis(leads, [], new Date('2026-01-10'))
-    expect(kpis.leadsAtivos).toBe(1)
+  it('conta leads ativos (exclui fechado)', () => {
+    const leads = [lead({ etapa: 'novo' }), lead({ etapa: 'fechado' }), lead({ etapa: 'contactado' })]
+    const kpis = calcularKpis(leads, new Date('2026-01-10'))
+    expect(kpis.leadsAtivos).toBe(2)
   })
 
   it('calcula taxa de conversão como fechados/total', () => {
-    const leads = [lead({ etapa: 'fechado' }), lead({ etapa: 'novo' }), lead({ etapa: 'perdido' })]
-    const kpis = calcularKpis(leads, [], new Date('2026-01-10'))
+    const leads = [lead({ etapa: 'fechado' }), lead({ etapa: 'novo' }), lead({ etapa: 'contactado' })]
+    const kpis = calcularKpis(leads, new Date('2026-01-10'))
     expect(kpis.taxaConversao).toBeCloseTo(1 / 3)
   })
 
   it('taxa de conversão é 0 quando não há leads', () => {
-    const kpis = calcularKpis([], [], new Date('2026-01-10'))
+    const kpis = calcularKpis([], new Date('2026-01-10'))
     expect(kpis.taxaConversao).toBe(0)
   })
 
@@ -45,19 +37,8 @@ describe('calcularKpis', () => {
       lead({ etapa: 'novo', proximo_contato_em: '2026-02-01T00:00:00.000Z' }),
       lead({ etapa: 'fechado', proximo_contato_em: '2026-01-01T00:00:00.000Z' }),
     ]
-    const kpis = calcularKpis(leads, [], agora)
+    const kpis = calcularKpis(leads, agora)
     expect(kpis.leadsVencidos).toBe(1)
-  })
-
-  it('conta só visitas agendadas dentro da semana atual', () => {
-    const agora = new Date('2026-01-07T12:00:00.000Z') // quarta-feira
-    const visitas = [
-      visita({ status: 'agendada', data_hora: '2026-01-08T09:00:00.000Z' }),
-      visita({ status: 'realizada', data_hora: '2026-01-08T09:00:00.000Z' }),
-      visita({ status: 'agendada', data_hora: '2026-02-01T09:00:00.000Z' }),
-    ]
-    const kpis = calcularKpis([], visitas, agora)
-    expect(kpis.visitasSemana).toBe(1)
   })
 })
 

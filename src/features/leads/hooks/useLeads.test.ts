@@ -21,14 +21,13 @@ const { useLeads } = await import('./useLeads')
 const leadBase: Lead = {
   id: '1',
   corretor_id: 'user-1',
-  nome: 'Ana',
+  nome_empresa: 'Empresa Ana',
+  nome_contato: 'Ana',
   telefone: '11999999999',
   email: null,
   origem: null,
-  tipo_imovel: null,
-  finalidade: null,
-  bairros: [],
-  faixa_preco: null,
+  produto_interesse: null,
+  ticket_estimado: null,
   etapa: 'novo',
   posicao: 0,
   motivo_perda: null,
@@ -60,21 +59,29 @@ describe('useLeads', () => {
     await waitFor(() => expect(result.current.loading).toBe(false))
 
     await act(async () => {
-      await result.current.addLead({ nome: 'Ana', telefone: '11999999999' })
+      await result.current.addLead({
+        nome_empresa: 'Empresa Ana',
+        nome_contato: 'Ana',
+        telefone: '11999999999',
+      })
     })
 
     expect(result.current.leads).toEqual([leadBase])
   })
 
   it('editLead atualiza o lead no estado', async () => {
-    const leadEditado = { ...leadBase, nome: 'Ana Paula' }
+    const leadEditado = { ...leadBase, nome_contato: 'Ana Paula' }
     listLeadsMock.mockResolvedValue([leadBase])
     updateLeadMock.mockResolvedValue(leadEditado)
     const { result } = renderHook(() => useLeads())
     await waitFor(() => expect(result.current.loading).toBe(false))
 
     await act(async () => {
-      await result.current.editLead('1', { nome: 'Ana Paula', telefone: '11999999999' })
+      await result.current.editLead('1', {
+        nome_empresa: 'Empresa Ana',
+        nome_contato: 'Ana Paula',
+        telefone: '11999999999',
+      })
     })
 
     expect(result.current.leads).toEqual([leadEditado])

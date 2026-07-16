@@ -18,17 +18,13 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useDefaultDiasParaContato } from '@/shared/hooks/useDefaultDiasParaContato'
-import { BairroTagInput } from './BairroTagInput'
-import { useBairroSuggestions } from '../hooks/useBairroSuggestions'
 import { onlyDigits, maskTelefone, TELEFONE_MASKED_MAX_LENGTH } from '@/shared/lib/telefoneMask'
-import { ETAPA_LABELS, FAIXA_PRECO_LABELS } from '@/shared/lib/leadLabels'
+import { ETAPA_LABELS } from '@/shared/lib/leadLabels'
 import { LEAD_LIMITS, validateLeadInput, type LeadInputErrors } from '../lib/validateLeadInput'
 import {
   ETAPAS,
-  FAIXAS_PRECO,
-  FINALIDADES,
   ORIGENS,
-  TIPOS_IMOVEL,
+  PRODUTOS_INTERESSE,
   type Etapa,
   type Lead,
   type LeadInput,
@@ -37,35 +33,24 @@ import {
 const ORIGEM_LABELS: Record<string, string> = {
   instagram: 'Instagram',
   indicacao: 'Indicação',
-  portal: 'Portal',
-  placa: 'Placa',
   whatsapp: 'WhatsApp',
-  outro: 'Outro',
+  prospeccao: 'Prospecção',
 }
 
-const TIPO_IMOVEL_LABELS: Record<string, string> = {
-  apartamento: 'Apartamento',
-  casa: 'Casa',
-  terreno: 'Terreno',
-  comercial: 'Comercial',
-}
-
-const FINALIDADE_LABELS: Record<string, string> = {
-  comprar: 'Comprar',
-  alugar: 'Alugar',
-  investir: 'Investir',
+const PRODUTO_LABELS: Record<string, string> = {
+  software: 'Software',
+  landing_page: 'Landing Page',
 }
 
 function emptyForm(diasPadrao: number): LeadInput {
   return {
-    nome: '',
+    nome_empresa: '',
+    nome_contato: '',
     telefone: '',
     email: '',
     origem: null,
-    tipo_imovel: null,
-    finalidade: null,
-    bairros: [],
-    faixa_preco: null,
+    produto_interesse: null,
+    ticket_estimado: null,
     etapa: 'novo',
     dias_para_contato: diasPadrao,
     observacoes: '',
@@ -74,14 +59,13 @@ function emptyForm(diasPadrao: number): LeadInput {
 
 function fromLead(lead: Lead): LeadInput {
   return {
-    nome: lead.nome,
+    nome_empresa: lead.nome_empresa,
+    nome_contato: lead.nome_contato,
     telefone: lead.telefone,
     email: lead.email ?? '',
     origem: lead.origem,
-    tipo_imovel: lead.tipo_imovel,
-    finalidade: lead.finalidade,
-    bairros: lead.bairros,
-    faixa_preco: lead.faixa_preco,
+    produto_interesse: lead.produto_interesse,
+    ticket_estimado: lead.ticket_estimado,
     etapa: lead.etapa,
     dias_para_contato: lead.dias_para_contato,
     observacoes: lead.observacoes ?? '',
@@ -101,7 +85,6 @@ export function LeadFormDialog({ open, onOpenChange, lead, onSubmit }: LeadFormD
   const [fieldErrors, setFieldErrors] = useState<LeadInputErrors>({})
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
-  const bairros = useBairroSuggestions(open)
 
   useEffect(() => {
     if (open) {
@@ -150,19 +133,36 @@ export function LeadFormDialog({ open, onOpenChange, lead, onSubmit }: LeadFormD
         <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex min-w-0 flex-col gap-1.5">
-              <Label htmlFor="lead-nome">Nome</Label>
+              <Label htmlFor="lead-nome-empresa">Nome da empresa</Label>
               <Input
-                id="lead-nome"
-                value={form.nome}
-                onChange={(e) => field('nome', e.target.value)}
-                maxLength={LEAD_LIMITS.nome.max}
-                aria-invalid={Boolean(fieldErrors.nome)}
-                aria-describedby={fieldErrors.nome ? 'lead-nome-error' : undefined}
+                id="lead-nome-empresa"
+                value={form.nome_empresa}
+                onChange={(e) => field('nome_empresa', e.target.value)}
+                maxLength={LEAD_LIMITS.nomeEmpresa.max}
+                aria-invalid={Boolean(fieldErrors.nome_empresa)}
+                aria-describedby={fieldErrors.nome_empresa ? 'lead-nome-empresa-error' : undefined}
                 required
               />
-              {fieldErrors.nome && (
-                <p id="lead-nome-error" role="alert" className="text-xs text-destructive">
-                  {fieldErrors.nome}
+              {fieldErrors.nome_empresa && (
+                <p id="lead-nome-empresa-error" role="alert" className="text-xs text-destructive">
+                  {fieldErrors.nome_empresa}
+                </p>
+              )}
+            </div>
+            <div className="flex min-w-0 flex-col gap-1.5">
+              <Label htmlFor="lead-nome-contato">Nome do contato</Label>
+              <Input
+                id="lead-nome-contato"
+                value={form.nome_contato}
+                onChange={(e) => field('nome_contato', e.target.value)}
+                maxLength={LEAD_LIMITS.nomeContato.max}
+                aria-invalid={Boolean(fieldErrors.nome_contato)}
+                aria-describedby={fieldErrors.nome_contato ? 'lead-nome-contato-error' : undefined}
+                required
+              />
+              {fieldErrors.nome_contato && (
+                <p id="lead-nome-contato-error" role="alert" className="text-xs text-destructive">
+                  {fieldErrors.nome_contato}
                 </p>
               )}
             </div>
@@ -222,15 +222,6 @@ export function LeadFormDialog({ open, onOpenChange, lead, onSubmit }: LeadFormD
               </Select>
             </div>
             <div className="flex min-w-0 flex-col gap-1.5">
-              <Label htmlFor="lead-bairros">Bairros de interesse</Label>
-              <BairroTagInput
-                id="lead-bairros"
-                value={form.bairros ?? []}
-                onChange={(value) => field('bairros', value)}
-                suggestions={bairros}
-              />
-            </div>
-            <div className="flex min-w-0 flex-col gap-1.5">
               <Label htmlFor="lead-origem">Origem</Label>
               <Select
                 value={form.origem ?? undefined}
@@ -251,64 +242,48 @@ export function LeadFormDialog({ open, onOpenChange, lead, onSubmit }: LeadFormD
               </Select>
             </div>
             <div className="flex min-w-0 flex-col gap-1.5">
-              <Label htmlFor="lead-tipo-imovel">Tipo de imóvel</Label>
+              <Label htmlFor="lead-produto-interesse">Produto de interesse</Label>
               <Select
-                value={form.tipo_imovel ?? undefined}
-                onValueChange={(value) => field('tipo_imovel', value as LeadInput['tipo_imovel'])}
+                value={form.produto_interesse ?? undefined}
+                onValueChange={(value) =>
+                  field('produto_interesse', value as LeadInput['produto_interesse'])
+                }
               >
-                <SelectTrigger id="lead-tipo-imovel" className="w-full">
+                <SelectTrigger id="lead-produto-interesse" className="w-full">
                   <SelectValue placeholder="Selecione">
-                    {(value: string | null) => (value ? TIPO_IMOVEL_LABELS[value] : 'Selecione')}
+                    {(value: string | null) => (value ? PRODUTO_LABELS[value] : 'Selecione')}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {TIPOS_IMOVEL.map((tipo) => (
-                    <SelectItem key={tipo} value={tipo}>
-                      {TIPO_IMOVEL_LABELS[tipo]}
+                  {PRODUTOS_INTERESSE.map((produto) => (
+                    <SelectItem key={produto} value={produto}>
+                      {PRODUTO_LABELS[produto]}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="flex min-w-0 flex-col gap-1.5">
-              <Label htmlFor="lead-finalidade">Finalidade</Label>
-              <Select
-                value={form.finalidade ?? undefined}
-                onValueChange={(value) => field('finalidade', value as LeadInput['finalidade'])}
-              >
-                <SelectTrigger id="lead-finalidade" className="w-full">
-                  <SelectValue placeholder="Selecione">
-                    {(value: string | null) => (value ? FINALIDADE_LABELS[value] : 'Selecione')}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {FINALIDADES.map((finalidade) => (
-                    <SelectItem key={finalidade} value={finalidade}>
-                      {FINALIDADE_LABELS[finalidade]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex min-w-0 flex-col gap-1.5">
-              <Label htmlFor="lead-faixa-preco">Faixa de preço</Label>
-              <Select
-                value={form.faixa_preco ?? undefined}
-                onValueChange={(value) => field('faixa_preco', value as LeadInput['faixa_preco'])}
-              >
-                <SelectTrigger id="lead-faixa-preco" className="w-full">
-                  <SelectValue placeholder="Selecione">
-                    {(value: string | null) => (value ? FAIXA_PRECO_LABELS[value] : 'Selecione')}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {FAIXAS_PRECO.map((faixa) => (
-                    <SelectItem key={faixa} value={faixa}>
-                      {FAIXA_PRECO_LABELS[faixa]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="lead-ticket-estimado">Ticket estimado (R$)</Label>
+              <Input
+                id="lead-ticket-estimado"
+                type="number"
+                min={0}
+                step="0.01"
+                value={form.ticket_estimado ?? ''}
+                onChange={(e) =>
+                  field('ticket_estimado', e.target.value === '' ? null : Number(e.target.value))
+                }
+                aria-invalid={Boolean(fieldErrors.ticket_estimado)}
+                aria-describedby={
+                  fieldErrors.ticket_estimado ? 'lead-ticket-estimado-error' : undefined
+                }
+              />
+              {fieldErrors.ticket_estimado && (
+                <p id="lead-ticket-estimado-error" role="alert" className="text-xs text-destructive">
+                  {fieldErrors.ticket_estimado}
+                </p>
+              )}
             </div>
             <div className="flex min-w-0 flex-col gap-1.5">
               <Label htmlFor="lead-dias-contato">Dias para o próximo contato</Label>

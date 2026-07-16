@@ -77,7 +77,7 @@ export function KanbanBoard() {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex gap-3 overflow-x-auto">
+        <div className="grid grid-cols-6 gap-3">
           {ETAPAS.map((etapa) => (
             <KanbanColumn
               key={etapa}

@@ -20,7 +20,7 @@ export function KanbanColumn({ etapa, leads, onDeleteLead, onEditLead }: KanbanC
       ref={setNodeRef}
       data-testid={`kanban-column-${etapa}`}
       className={cn(
-        'flex min-h-28 w-64 shrink-0 flex-col gap-2 rounded-xl bg-muted p-2.5 transition-colors',
+        'flex min-h-28 min-w-0 flex-col gap-2 rounded-xl bg-muted p-2.5 transition-colors',
         isOver && 'bg-accent'
       )}
     >

@@ -1,6 +1,6 @@
 import type { Lead } from '@/shared/types/lead'
 
-const ETAPAS_SEM_FOLLOWUP = new Set(['fechado', 'perdido'])
+const ETAPAS_SEM_FOLLOWUP = new Set(['fechado'])
 
 export function precisaFalarHoje(lead: Lead, agora: Date): boolean {
   if (ETAPAS_SEM_FOLLOWUP.has(lead.etapa)) return false

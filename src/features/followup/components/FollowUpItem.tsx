@@ -2,9 +2,18 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { WhatsAppLink } from '@/shared/components/WhatsAppLink'
-import { ETAPA_BADGE_CLASSES, ETAPA_LABELS, FAIXA_PRECO_LABELS } from '@/shared/lib/leadLabels'
+import { ETAPA_BADGE_CLASSES, ETAPA_LABELS } from '@/shared/lib/leadLabels'
 import type { Lead } from '@/shared/types/lead'
 import { diasSemUltimoContato } from '../lib/precisaFalarHoje'
+
+const PRODUTO_LABELS: Record<string, string> = {
+  software: 'Software',
+  landing_page: 'Landing Page',
+}
+
+function formatTicket(valor: number): string {
+  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+}
 
 type FollowUpItemProps = {
   lead: Lead
@@ -19,7 +28,7 @@ export function FollowUpItem({ lead, agora, onContatado }: FollowUpItemProps) {
     <li className="flex items-start justify-between gap-4 rounded-lg border border-border bg-card p-3">
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <p className="truncate font-medium">{lead.nome}</p>
+          <p className="truncate font-medium">{lead.nome_empresa}</p>
           <span
             className={cn(
               'shrink-0 rounded-md px-1.5 py-0.5 text-xs font-medium',
@@ -29,24 +38,22 @@ export function FollowUpItem({ lead, agora, onContatado }: FollowUpItemProps) {
             {ETAPA_LABELS[lead.etapa]}
           </span>
         </div>
-        <WhatsAppLink telefone={lead.telefone} className="block text-sm text-muted-foreground" />
+        <p className="truncate text-sm text-muted-foreground">{lead.nome_contato}</p>
+        <WhatsAppLink telefone={lead.telefone} className="inline-block text-sm text-muted-foreground" />
         <p className="text-xs text-muted-foreground">
           {diasSemUltimoContato(lead, agora)} dias sem contato
         </p>
 
-        {(lead.bairros.length > 0 || lead.faixa_preco) && (
+        {(lead.produto_interesse || lead.ticket_estimado != null) && (
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-            {lead.bairros.map((bairro) => (
-              <span
-                key={bairro}
-                className="rounded-md bg-secondary px-2 py-0.5 text-xs text-secondary-foreground"
-              >
-                {bairro}
+            {lead.produto_interesse && (
+              <span className="rounded-md bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">
+                {PRODUTO_LABELS[lead.produto_interesse]}
               </span>
-            ))}
-            {lead.faixa_preco && (
+            )}
+            {lead.ticket_estimado != null && (
               <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                {FAIXA_PRECO_LABELS[lead.faixa_preco]}
+                {formatTicket(lead.ticket_estimado)}
               </span>
             )}
           </div>

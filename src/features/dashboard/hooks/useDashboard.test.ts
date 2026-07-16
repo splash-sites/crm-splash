@@ -2,11 +2,9 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 
 const listLeadsResumoMock = vi.fn()
-const listVisitasResumoMock = vi.fn()
 
 vi.mock('../services/dashboardService', () => ({
   listLeadsResumo: (...args: unknown[]) => listLeadsResumoMock(...args),
-  listVisitasResumo: (...args: unknown[]) => listVisitasResumoMock(...args),
 }))
 
 const { useDashboard } = await import('./useDashboard')
@@ -25,7 +23,6 @@ describe('useDashboard', () => {
         proximo_contato_em: '2026-01-01T00:00:00.000Z',
       },
     ])
-    listVisitasResumoMock.mockResolvedValue([])
 
     const { result } = renderHook(() => useDashboard())
     expect(result.current.loading).toBe(true)
@@ -39,7 +36,6 @@ describe('useDashboard', () => {
 
   it('seta error quando a busca falha', async () => {
     listLeadsResumoMock.mockRejectedValue(new Error('falha ao buscar'))
-    listVisitasResumoMock.mockResolvedValue([])
 
     const { result } = renderHook(() => useDashboard())
     await waitFor(() => expect(result.current.loading).toBe(false))

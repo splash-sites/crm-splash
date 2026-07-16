@@ -6,14 +6,13 @@ function lead(overrides: Partial<Lead> = {}): Lead {
   return {
     id: '1',
     corretor_id: 'user-1',
-    nome: 'Ana',
+    nome_empresa: 'Empresa Ana',
+    nome_contato: 'Ana',
     telefone: '11999999999',
     email: null,
     origem: null,
-    tipo_imovel: null,
-    finalidade: null,
-    bairros: [],
-    faixa_preco: null,
+    produto_interesse: null,
+    ticket_estimado: null,
     etapa: 'novo',
     posicao: 0,
     motivo_perda: null,
@@ -42,30 +41,30 @@ describe('resolveDrop', () => {
 
   it('solto na coluna vazia (etapa), fica com posicao 0', () => {
     const a = lead({ id: '1', etapa: 'novo', posicao: 0 })
-    const result = resolveDrop([a], '1', 'em_contato')
-    expect(result).toEqual({ etapa: 'em_contato', posicao: 0 })
+    const result = resolveDrop([a], '1', 'qualificando')
+    expect(result).toEqual({ etapa: 'qualificando', posicao: 0 })
   })
 
   it('solto no fim de uma coluna com leads, fica depois do último', () => {
     const a = lead({ id: '1', etapa: 'novo', posicao: 0 })
-    const b = lead({ id: '2', etapa: 'em_contato', posicao: 500 })
-    const result = resolveDrop([a, b], '1', 'em_contato')
-    expect(result).toEqual({ etapa: 'em_contato', posicao: 1500 })
+    const b = lead({ id: '2', etapa: 'qualificando', posicao: 500 })
+    const result = resolveDrop([a, b], '1', 'qualificando')
+    expect(result).toEqual({ etapa: 'qualificando', posicao: 1500 })
   })
 
   it('solto em cima de um lead sem anterior, fica antes dele', () => {
     const a = lead({ id: '1', etapa: 'novo', posicao: 0 })
-    const b = lead({ id: '2', etapa: 'em_contato', posicao: 500 })
+    const b = lead({ id: '2', etapa: 'qualificando', posicao: 500 })
     const result = resolveDrop([a, b], '1', '2')
-    expect(result).toEqual({ etapa: 'em_contato', posicao: -500 })
+    expect(result).toEqual({ etapa: 'qualificando', posicao: -500 })
   })
 
   it('solto entre dois leads, fica na média das posições', () => {
     const a = lead({ id: '1', etapa: 'novo', posicao: 0 })
-    const b = lead({ id: '2', etapa: 'em_contato', posicao: 100 })
-    const c = lead({ id: '3', etapa: 'em_contato', posicao: 300 })
+    const b = lead({ id: '2', etapa: 'qualificando', posicao: 100 })
+    const c = lead({ id: '3', etapa: 'qualificando', posicao: 300 })
     const result = resolveDrop([a, b, c], '1', '3')
-    expect(result).toEqual({ etapa: 'em_contato', posicao: 200 })
+    expect(result).toEqual({ etapa: 'qualificando', posicao: 200 })
   })
 
   it('reordena dentro da mesma coluna', () => {

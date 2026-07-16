@@ -10,7 +10,8 @@ export function LeadCardPreview({ lead }: { lead: Lead }) {
           <GripVertical className="size-4" />
         </span>
         <div className="min-w-0 flex-1">
-          <span className="block truncate font-medium">{lead.nome}</span>
+          <span className="block truncate font-medium">{lead.nome_empresa}</span>
+          <span className="block truncate text-muted-foreground">{lead.nome_contato}</span>
           <span className="block text-muted-foreground">{maskTelefone(lead.telefone)}</span>
         </div>
       </div>

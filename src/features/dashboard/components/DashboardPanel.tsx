@@ -18,11 +18,10 @@ export function DashboardPanel() {
         </p>
       )}
       {kpis && (
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <StatTile label="Leads ativos" value={String(kpis.leadsAtivos)} />
           <StatTile label="Taxa de conversão" value={`${Math.round(kpis.taxaConversao * 100)}%`} />
           <StatTile label="Leads vencidos" value={String(kpis.leadsVencidos)} />
-          <StatTile label="Visitas na semana" value={String(kpis.visitasSemana)} />
         </div>
       )}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

@@ -3,7 +3,7 @@ import { validateLeadInput } from './validateLeadInput'
 import type { LeadInput } from '@/shared/types/lead'
 
 function baseInput(overrides: Partial<LeadInput> = {}): LeadInput {
-  return { nome: 'Ana', telefone: '11999999999', ...overrides }
+  return { nome_empresa: 'Empresa Ana', nome_contato: 'Ana', telefone: '11999999999', ...overrides }
 }
 
 describe('validateLeadInput', () => {
@@ -11,12 +11,24 @@ describe('validateLeadInput', () => {
     expect(validateLeadInput(baseInput())).toEqual({})
   })
 
-  it('rejeita nome menor que 2 caracteres', () => {
-    expect(validateLeadInput(baseInput({ nome: 'A' }))).toHaveProperty('nome')
+  it('rejeita nome da empresa menor que 2 caracteres', () => {
+    expect(validateLeadInput(baseInput({ nome_empresa: 'A' }))).toHaveProperty('nome_empresa')
   })
 
-  it('rejeita nome maior que 100 caracteres', () => {
-    expect(validateLeadInput(baseInput({ nome: 'a'.repeat(101) }))).toHaveProperty('nome')
+  it('rejeita nome da empresa maior que 100 caracteres', () => {
+    expect(validateLeadInput(baseInput({ nome_empresa: 'a'.repeat(101) }))).toHaveProperty(
+      'nome_empresa'
+    )
+  })
+
+  it('rejeita nome do contato menor que 2 caracteres', () => {
+    expect(validateLeadInput(baseInput({ nome_contato: 'A' }))).toHaveProperty('nome_contato')
+  })
+
+  it('rejeita nome do contato maior que 100 caracteres', () => {
+    expect(validateLeadInput(baseInput({ nome_contato: 'a'.repeat(101) }))).toHaveProperty(
+      'nome_contato'
+    )
   })
 
   it('rejeita telefone com menos de 11 dígitos (DDD + 9 números)', () => {
@@ -48,5 +60,18 @@ describe('validateLeadInput', () => {
     expect(validateLeadInput(baseInput({ observacoes: 'a'.repeat(1001) }))).toHaveProperty(
       'observacoes'
     )
+  })
+
+  it('aceita ticket_estimado ausente', () => {
+    expect(validateLeadInput(baseInput())).toEqual({})
+  })
+
+  it('rejeita ticket_estimado negativo', () => {
+    expect(validateLeadInput(baseInput({ ticket_estimado: -1 }))).toHaveProperty('ticket_estimado')
+  })
+
+  it('aceita ticket_estimado zero ou positivo', () => {
+    expect(validateLeadInput(baseInput({ ticket_estimado: 0 }))).toEqual({})
+    expect(validateLeadInput(baseInput({ ticket_estimado: 15000 }))).toEqual({})
   })
 })

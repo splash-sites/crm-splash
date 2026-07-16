@@ -18,7 +18,7 @@ vi.mock('@/lib/supabaseClient', () => ({
   },
 }))
 
-const { listLeadsResumo, listVisitasResumo } = await import('./dashboardService')
+const { listLeadsResumo } = await import('./dashboardService')
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -40,16 +40,5 @@ describe('listLeadsResumo', () => {
   it('lança erro quando supabase retorna error', async () => {
     fromMock.mockReturnValue(chainable({ data: null, error: new Error('falha') }))
     await expect(listLeadsResumo()).rejects.toThrow('falha')
-  })
-})
-
-describe('listVisitasResumo', () => {
-  it('retorna visitas resumidas', async () => {
-    fromMock.mockReturnValue(
-      chainable({ data: [{ status: 'agendada', data_hora: '2026-01-05T12:00:00.000Z' }], error: null })
-    )
-    const result = await listVisitasResumo()
-    expect(fromMock).toHaveBeenCalledWith('visitas')
-    expect(result).toHaveLength(1)
   })
 })

@@ -8,21 +8,20 @@ function leadBase(overrides: Partial<Lead> = {}): Lead {
   return {
     id: '1',
     corretor_id: 'user-1',
-    nome: 'Ana',
+    nome_empresa: 'Empresa Ana',
+    nome_contato: 'Ana',
     telefone: '11999999999',
     email: null,
     origem: null,
-    tipo_imovel: null,
-    finalidade: null,
-    bairros: ['Centro', 'Zona Sul'],
-    faixa_preco: '300k_500k',
+    produto_interesse: 'software',
+    ticket_estimado: 15000,
     etapa: 'novo',
     posicao: 0,
     motivo_perda: null,
     ultima_interacao: null,
     dias_para_contato: 3,
     proximo_contato_em: '2026-01-01T00:00:00.000Z',
-    observacoes: 'Cliente quer fechar rápido, já visitou 2 imóveis na região.',
+    observacoes: 'Cliente quer fechar rápido, já viu proposta de outro fornecedor.',
     created_at: '2025-12-29T00:00:00.000Z',
     updated_at: '2025-12-29T00:00:00.000Z',
     ...overrides,
@@ -37,11 +36,10 @@ describe('FollowUpItem', () => {
     expect(screen.getByText('Proposta')).toBeInTheDocument()
   })
 
-  it('mostra bairros e faixa de preço', () => {
+  it('mostra produto de interesse e ticket estimado', () => {
     render(<FollowUpItem lead={leadBase()} agora={new Date()} onContatado={vi.fn()} />)
-    expect(screen.getByText('Centro')).toBeInTheDocument()
-    expect(screen.getByText('Zona Sul')).toBeInTheDocument()
-    expect(screen.getByText('R$ 300 mil - R$ 500 mil')).toBeInTheDocument()
+    expect(screen.getByText('Software')).toBeInTheDocument()
+    expect(screen.getByText('R$ 15.000,00')).toBeInTheDocument()
   })
 
   it('trunca observações e expande ao clicar em "ver mais"', async () => {
@@ -56,15 +54,15 @@ describe('FollowUpItem', () => {
     expect(screen.getByRole('button', { name: 'ver menos' })).toBeInTheDocument()
   })
 
-  it('não mostra bloco de tags quando não há bairros nem faixa de preço', () => {
+  it('não mostra bloco de tags quando não há produto nem ticket estimado', () => {
     render(
       <FollowUpItem
-        lead={leadBase({ bairros: [], faixa_preco: null, observacoes: null })}
+        lead={leadBase({ produto_interesse: null, ticket_estimado: null, observacoes: null })}
         agora={new Date()}
         onContatado={vi.fn()}
       />
     )
-    expect(screen.queryByText('R$ 300 mil - R$ 500 mil')).not.toBeInTheDocument()
+    expect(screen.queryByText('Software')).not.toBeInTheDocument()
   })
 
   it('chama onContatado ao clicar em "Marcar como concluído"', async () => {

@@ -1,56 +1,30 @@
 export const ETAPAS = [
   'novo',
-  'em_contato',
-  'visita_agendada',
+  'contactado',
+  'qualificando',
   'proposta',
+  'negociacao',
   'fechado',
-  'perdido',
 ] as const
 
 export type Etapa = (typeof ETAPAS)[number]
 
-export const ORIGENS = ['instagram', 'indicacao', 'portal', 'placa', 'whatsapp', 'outro'] as const
+export const ORIGENS = ['instagram', 'indicacao', 'whatsapp', 'prospeccao'] as const
 export type Origem = (typeof ORIGENS)[number]
 
-export const TIPOS_IMOVEL = ['apartamento', 'casa', 'terreno', 'comercial'] as const
-export type TipoImovel = (typeof TIPOS_IMOVEL)[number]
-
-export const FINALIDADES = ['comprar', 'alugar', 'investir'] as const
-export type Finalidade = (typeof FINALIDADES)[number]
-
-export const FAIXAS_PRECO = [
-  'ate_150k',
-  '150k_300k',
-  '300k_500k',
-  '500k_750k',
-  '750k_1m',
-  '1m_1_5m',
-  '1_5m_2m',
-  '2m_3m',
-  '3m_5m',
-  '5m_10m',
-  'acima_10m',
-] as const
-export type FaixaPreco = (typeof FAIXAS_PRECO)[number]
-
-export type Bairro = {
-  id: string
-  corretor_id: string
-  nome: string
-  created_at: string
-}
+export const PRODUTOS_INTERESSE = ['software', 'landing_page'] as const
+export type ProdutoInteresse = (typeof PRODUTOS_INTERESSE)[number]
 
 export type Lead = {
   id: string
   corretor_id: string
-  nome: string
+  nome_empresa: string
+  nome_contato: string
   telefone: string
   email: string | null
   origem: Origem | null
-  tipo_imovel: TipoImovel | null
-  finalidade: Finalidade | null
-  bairros: string[]
-  faixa_preco: FaixaPreco | null
+  produto_interesse: ProdutoInteresse | null
+  ticket_estimado: number | null
   etapa: Etapa
   posicao: number
   motivo_perda: string | null
@@ -63,14 +37,13 @@ export type Lead = {
 }
 
 export type LeadInput = {
-  nome: string
+  nome_empresa: string
+  nome_contato: string
   telefone: string
   email?: string | null
   origem?: Origem | null
-  tipo_imovel?: TipoImovel | null
-  finalidade?: Finalidade | null
-  bairros?: string[]
-  faixa_preco?: FaixaPreco | null
+  produto_interesse?: ProdutoInteresse | null
+  ticket_estimado?: number | null
   etapa?: Etapa
   dias_para_contato?: number
   observacoes?: string | null

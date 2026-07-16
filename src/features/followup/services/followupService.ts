@@ -1,16 +1,15 @@
 import { supabase } from '@/lib/supabaseClient'
-import { toLead, type LeadRow } from '@/shared/lib/leadRow'
 import { calcularProximoContato } from '@/shared/lib/proximoContato'
 import type { Lead } from '@/shared/types/lead'
 
 export async function listLeadsAtivos(): Promise<Lead[]> {
   const { data, error } = await supabase
     .from('leads')
-    .select('*, lead_bairros(bairros(nome))')
-    .not('etapa', 'in', '(fechado,perdido)')
+    .select('*')
+    .not('etapa', 'in', '(fechado)')
     .order('proximo_contato_em', { ascending: true })
   if (error) throw error
-  return (data as LeadRow[]).map(toLead)
+  return data as Lead[]
 }
 
 export async function marcarContatoHoje(lead: Lead): Promise<void> {

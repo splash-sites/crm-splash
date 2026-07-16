@@ -1,26 +1,20 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import type { Lead } from '@/shared/types/lead'
-
-const listBairrosMock = vi.fn()
-vi.mock('../services/leadsService', () => ({
-  listBairros: (...args: unknown[]) => listBairrosMock(...args),
-}))
 
 const { LeadFormDialog } = await import('./LeadFormDialog')
 
 const lead: Lead = {
   id: '1',
   corretor_id: 'user-1',
-  nome: 'Ana',
+  nome_empresa: 'Empresa Ana',
+  nome_contato: 'Ana',
   telefone: '11999999999',
   email: 'ana@example.com',
   origem: 'instagram',
-  tipo_imovel: 'apartamento',
-  finalidade: 'comprar',
-  bairros: ['Centro', 'Zona Sul'],
-  faixa_preco: '300k_500k',
+  produto_interesse: 'software',
+  ticket_estimado: 15000,
   etapa: 'novo',
   posicao: 0,
   motivo_perda: null,
@@ -34,7 +28,6 @@ const lead: Lead = {
 
 beforeEach(() => {
   vi.clearAllMocks()
-  listBairrosMock.mockResolvedValue([])
 })
 
 describe('LeadFormDialog', () => {
@@ -43,28 +36,36 @@ describe('LeadFormDialog', () => {
     const user = userEvent.setup()
     render(<LeadFormDialog open onOpenChange={vi.fn()} lead={null} onSubmit={onSubmit} />)
 
-    expect(screen.getByLabelText('Nome')).toHaveValue('')
+    expect(screen.getByLabelText('Nome da empresa')).toHaveValue('')
+    expect(screen.getByLabelText('Nome do contato')).toHaveValue('')
     expect(screen.getByLabelText('Telefone')).toHaveValue('')
 
-    await user.type(screen.getByLabelText('Nome'), 'Bruno')
+    await user.type(screen.getByLabelText('Nome da empresa'), 'Empresa Bruno')
+    await user.type(screen.getByLabelText('Nome do contato'), 'Bruno')
     await user.type(screen.getByLabelText('Telefone'), '11988887777')
     await user.click(screen.getByRole('button', { name: 'Salvar' }))
 
     expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({ nome: 'Bruno', telefone: '11988887777', etapa: 'novo' })
+      expect.objectContaining({
+        nome_empresa: 'Empresa Bruno',
+        nome_contato: 'Bruno',
+        telefone: '11988887777',
+        etapa: 'novo',
+      })
     )
   })
 
   it('modo editar: campos vêm pré-preenchidos com os dados do lead', () => {
     render(<LeadFormDialog open onOpenChange={vi.fn()} lead={lead} onSubmit={vi.fn()} />)
 
-    expect(screen.getByLabelText('Nome')).toHaveValue('Ana')
+    expect(screen.getByLabelText('Nome da empresa')).toHaveValue('Empresa Ana')
+    expect(screen.getByLabelText('Nome do contato')).toHaveValue('Ana')
     expect(screen.getByLabelText('Telefone')).toHaveValue('(11) 99999-9999')
     expect(screen.getByLabelText('Email')).toHaveValue('ana@example.com')
-    expect(screen.getByText('Centro')).toBeInTheDocument()
-    expect(screen.getByText('Zona Sul')).toBeInTheDocument()
     expect(screen.getByLabelText('Etapa')).toHaveTextContent('Novo')
-    expect(screen.getByLabelText('Faixa de preço')).toHaveTextContent('R$ 300 mil - R$ 500 mil')
+    expect(screen.getByLabelText('Origem')).toHaveTextContent('Instagram')
+    expect(screen.getByLabelText('Produto de interesse')).toHaveTextContent('Software')
+    expect(screen.getByLabelText('Ticket estimado (R$)')).toHaveValue(15000)
     expect(screen.getByLabelText('Observações')).toHaveValue('cliente exigente')
   })
 
@@ -73,7 +74,8 @@ describe('LeadFormDialog', () => {
     const user = userEvent.setup()
     render(<LeadFormDialog open onOpenChange={vi.fn()} lead={null} onSubmit={onSubmit} />)
 
-    await user.type(screen.getByLabelText('Nome'), 'Bruno')
+    await user.type(screen.getByLabelText('Nome da empresa'), 'Empresa Bruno')
+    await user.type(screen.getByLabelText('Nome do contato'), 'Bruno')
     await user.type(screen.getByLabelText('Telefone'), '11988887777')
     await user.click(screen.getByLabelText('Etapa'))
     await user.click(await screen.findByRole('option', { name: 'Proposta' }))
@@ -82,12 +84,13 @@ describe('LeadFormDialog', () => {
     expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ etapa: 'proposta' }))
   })
 
-  it('bloqueia salvar com nome muito curto e mostra erro no campo', async () => {
+  it('bloqueia salvar com nome da empresa muito curto e mostra erro no campo', async () => {
     const onSubmit = vi.fn()
     const user = userEvent.setup()
     render(<LeadFormDialog open onOpenChange={vi.fn()} lead={null} onSubmit={onSubmit} />)
 
-    await user.type(screen.getByLabelText('Nome'), 'A')
+    await user.type(screen.getByLabelText('Nome da empresa'), 'A')
+    await user.type(screen.getByLabelText('Nome do contato'), 'Bruno')
     await user.type(screen.getByLabelText('Telefone'), '11988887777')
     await user.click(screen.getByRole('button', { name: 'Salvar' }))
 
@@ -100,7 +103,8 @@ describe('LeadFormDialog', () => {
     const user = userEvent.setup()
     render(<LeadFormDialog open onOpenChange={vi.fn()} lead={null} onSubmit={onSubmit} />)
 
-    await user.type(screen.getByLabelText('Nome'), 'Bruno')
+    await user.type(screen.getByLabelText('Nome da empresa'), 'Empresa Bruno')
+    await user.type(screen.getByLabelText('Nome do contato'), 'Bruno')
     await user.type(screen.getByLabelText('Telefone'), '11988887777')
     await user.type(screen.getByLabelText('Email'), 'invalido')
     await user.click(screen.getByRole('button', { name: 'Salvar' }))
@@ -117,31 +121,22 @@ describe('LeadFormDialog', () => {
     expect(screen.getByText('5/1000')).toBeInTheDocument()
   })
 
-  it('sugere bairros já usados pelo corretor no campo bairro', async () => {
-    listBairrosMock.mockResolvedValue(['Centro', 'Zona Sul'])
-    render(<LeadFormDialog open onOpenChange={vi.fn()} lead={null} onSubmit={vi.fn()} />)
-
-    await waitFor(() => {
-      const options = document.querySelectorAll('#lead-bairros-suggestions option')
-      expect(options).toHaveLength(2)
-    })
-    const values = Array.from(
-      document.querySelectorAll('#lead-bairros-suggestions option')
-    ).map((option) => option.getAttribute('value'))
-    expect(values).toEqual(['Centro', 'Zona Sul'])
-  })
-
-  it('adiciona bairro digitado e envia junto no submit', async () => {
+  it('envia produto de interesse e ticket estimado preenchidos', async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined)
     const user = userEvent.setup()
     render(<LeadFormDialog open onOpenChange={vi.fn()} lead={null} onSubmit={onSubmit} />)
 
-    await user.type(screen.getByLabelText('Nome'), 'Bruno')
+    await user.type(screen.getByLabelText('Nome da empresa'), 'Empresa Bruno')
+    await user.type(screen.getByLabelText('Nome do contato'), 'Bruno')
     await user.type(screen.getByLabelText('Telefone'), '11988887777')
-    await user.type(screen.getByLabelText('Bairros de interesse'), 'Centro{Enter}')
+    await user.click(screen.getByLabelText('Produto de interesse'))
+    await user.click(await screen.findByRole('option', { name: 'Landing Page' }))
+    await user.type(screen.getByLabelText('Ticket estimado (R$)'), '5000')
     await user.click(screen.getByRole('button', { name: 'Salvar' }))
 
-    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ bairros: ['Centro'] }))
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ produto_interesse: 'landing_page', ticket_estimado: 5000 })
+    )
   })
 
   it('mostra erro quando onSubmit falha', async () => {
@@ -149,7 +144,8 @@ describe('LeadFormDialog', () => {
     const user = userEvent.setup()
     render(<LeadFormDialog open onOpenChange={vi.fn()} lead={null} onSubmit={onSubmit} />)
 
-    await user.type(screen.getByLabelText('Nome'), 'Bruno')
+    await user.type(screen.getByLabelText('Nome da empresa'), 'Empresa Bruno')
+    await user.type(screen.getByLabelText('Nome do contato'), 'Bruno')
     await user.type(screen.getByLabelText('Telefone'), '11988887777')
     await user.click(screen.getByRole('button', { name: 'Salvar' }))
 

@@ -8,7 +8,6 @@ import { Cadastro } from '@/pages/Cadastro'
 import { Home } from '@/pages/Home'
 import { FalarHoje } from '@/pages/FalarHoje'
 import { Configuracoes } from '@/pages/Configuracoes'
-import { Agenda } from '@/pages/Agenda'
 import { Dashboard } from '@/pages/Dashboard'
 import { NotFound } from '@/pages/NotFound'
 
@@ -48,14 +47,6 @@ function App() {
             element={
               <RequireAuth>
                 <Configuracoes />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/agenda"
-            element={
-              <RequireAuth>
-                <Agenda />
               </RequireAuth>
             }
           />

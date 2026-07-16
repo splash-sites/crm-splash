@@ -7,16 +7,10 @@ export type DashboardLead = {
   proximo_contato_em: string
 }
 
-export type DashboardVisita = {
-  status: 'agendada' | 'realizada' | 'cancelada'
-  data_hora: string
-}
-
 export type Kpis = {
   leadsAtivos: number
   taxaConversao: number
   leadsVencidos: number
-  visitasSemana: number
 }
 
 export type FunilItem = { etapa: Etapa; label: string; count: number }

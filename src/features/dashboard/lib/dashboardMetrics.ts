@@ -1,25 +1,14 @@
 import { ETAPA_LABELS } from '@/shared/lib/leadLabels'
 import { ETAPAS, ORIGENS } from '@/shared/types/lead'
-import type {
-  DashboardLead,
-  DashboardVisita,
-  FunilItem,
-  Kpis,
-  OrigemItem,
-  TendenciaItem,
-} from '../types/dashboard'
+import type { DashboardLead, FunilItem, Kpis, OrigemItem, TendenciaItem } from '../types/dashboard'
 
-const ETAPAS_ATIVAS: readonly string[] = ETAPAS.filter(
-  (etapa) => etapa !== 'fechado' && etapa !== 'perdido'
-)
+const ETAPAS_ATIVAS: readonly string[] = ETAPAS.filter((etapa) => etapa !== 'fechado')
 
 const ORIGEM_LABELS: Record<string, string> = {
   instagram: 'Instagram',
   indicacao: 'Indicação',
-  portal: 'Portal',
-  placa: 'Placa',
   whatsapp: 'WhatsApp',
-  outro: 'Outro',
+  prospeccao: 'Prospecção',
 }
 
 function inicioDaSemana(data: Date): Date {
@@ -29,11 +18,7 @@ function inicioDaSemana(data: Date): Date {
   return d
 }
 
-export function calcularKpis(
-  leads: DashboardLead[],
-  visitas: DashboardVisita[],
-  agora: Date
-): Kpis {
+export function calcularKpis(leads: DashboardLead[], agora: Date): Kpis {
   const leadsAtivos = leads.filter((lead) => ETAPAS_ATIVAS.includes(lead.etapa)).length
   const fechados = leads.filter((lead) => lead.etapa === 'fechado').length
   const taxaConversao = leads.length > 0 ? fechados / leads.length : 0
@@ -42,17 +27,7 @@ export function calcularKpis(
     (lead) => ETAPAS_ATIVAS.includes(lead.etapa) && new Date(lead.proximo_contato_em) <= agora
   ).length
 
-  const inicioSemana = inicioDaSemana(agora)
-  const fimSemana = new Date(inicioSemana)
-  fimSemana.setDate(inicioSemana.getDate() + 7)
-
-  const visitasSemana = visitas.filter((visita) => {
-    if (visita.status !== 'agendada') return false
-    const d = new Date(visita.data_hora)
-    return d >= inicioSemana && d < fimSemana
-  }).length
-
-  return { leadsAtivos, taxaConversao, leadsVencidos, visitasSemana }
+  return { leadsAtivos, taxaConversao, leadsVencidos }
 }
 
 export function calcularFunil(leads: DashboardLead[]): FunilItem[] {

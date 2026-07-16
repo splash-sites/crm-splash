@@ -2,7 +2,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 
 function chainable(result: unknown) {
   const chain: Record<string, unknown> = {}
-  const methods = ['select', 'order', 'insert', 'update', 'delete', 'eq', 'single', 'upsert', 'not']
+  const methods = ['select', 'order', 'insert', 'update', 'delete', 'eq', 'single', 'not']
   for (const method of methods) {
     chain[method] = vi.fn(() => chain)
   }
@@ -22,7 +22,7 @@ vi.mock('@/lib/supabaseClient', () => ({
   },
 }))
 
-const { listLeads, createLead, updateLead, updateLeadPosicao, deleteLead, listBairros } =
+const { listLeads, createLead, updateLead, updateLeadPosicao, deleteLead } =
   await import('./leadsService')
 
 beforeEach(() => {
@@ -30,22 +30,16 @@ beforeEach(() => {
 })
 
 describe('leadsService', () => {
-  it('listLeads retorna os leads com bairros achatados', async () => {
+  it('listLeads retorna os leads', async () => {
     fromMock.mockReturnValue(
       chainable({
-        data: [
-          {
-            id: '1',
-            nome: 'Ana',
-            lead_bairros: [{ bairros: { nome: 'Centro' } }, { bairros: { nome: 'Zona Sul' } }],
-          },
-        ],
+        data: [{ id: '1', nome_empresa: 'Empresa Ana', nome_contato: 'Ana' }],
         error: null,
       })
     )
     const result = await listLeads()
     expect(fromMock).toHaveBeenCalledWith('leads')
-    expect(result).toEqual([{ id: '1', nome: 'Ana', bairros: ['Centro', 'Zona Sul'] }])
+    expect(result).toEqual([{ id: '1', nome_empresa: 'Empresa Ana', nome_contato: 'Ana' }])
   })
 
   it('listLeads lança erro quando supabase retorna error', async () => {
@@ -53,40 +47,44 @@ describe('leadsService', () => {
     await expect(listLeads()).rejects.toThrow('falha')
   })
 
-  it('createLead usa o usuário logado como corretor_id e sincroniza bairros', async () => {
+  it('createLead usa o usuário logado como corretor_id', async () => {
     getUserMock.mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null })
-    const chains: Record<string, ReturnType<typeof chainable>> = {
-      leads: chainable({ data: { id: '1', nome: 'Ana' }, error: null }),
-      lead_bairros: chainable({ error: null }),
-      bairros: chainable({
-        data: [{ id: 'b1', nome: 'Centro' }],
-        error: null,
-      }),
-    }
-    fromMock.mockImplementation((table: string) => chains[table])
+    const chain = chainable({
+      data: { id: '1', nome_empresa: 'Empresa Ana', nome_contato: 'Ana' },
+      error: null,
+    })
+    fromMock.mockReturnValue(chain)
 
-    const result = await createLead({ nome: 'Ana', telefone: '11999999999', bairros: ['Centro'] })
-    expect(result).toEqual({ id: '1', nome: 'Ana', bairros: ['Centro'] })
+    const result = await createLead({
+      nome_empresa: 'Empresa Ana',
+      nome_contato: 'Ana',
+      telefone: '11999999999',
+    })
+    expect(fromMock).toHaveBeenCalledWith('leads')
+    expect(chain.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ corretor_id: 'user-1', nome_empresa: 'Empresa Ana' })
+    )
+    expect(result).toEqual({ id: '1', nome_empresa: 'Empresa Ana', nome_contato: 'Ana' })
   })
 
   it('createLead lança erro quando não há usuário logado', async () => {
     getUserMock.mockResolvedValue({ data: { user: null }, error: null })
-    await expect(createLead({ nome: 'Ana', telefone: '11999999999' })).rejects.toThrow(
-      'Usuário não autenticado'
-    )
+    await expect(
+      createLead({ nome_empresa: 'Empresa Ana', nome_contato: 'Ana', telefone: '11999999999' })
+    ).rejects.toThrow('Usuário não autenticado')
   })
 
-  it('updateLead atualiza os campos do lead e sincroniza bairros', async () => {
-    getUserMock.mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null })
-    const chains: Record<string, ReturnType<typeof chainable>> = {
-      leads: chainable({ data: { id: '1', nome: 'Ana Paula' }, error: null }),
-      lead_bairros: chainable({ error: null }),
-      bairros: chainable({ data: [], error: null }),
-    }
-    fromMock.mockImplementation((table: string) => chains[table])
+  it('updateLead atualiza os campos do lead', async () => {
+    fromMock.mockReturnValue(
+      chainable({ data: { id: '1', nome_empresa: 'Empresa Ana Paula' }, error: null })
+    )
 
-    const result = await updateLead('1', { nome: 'Ana Paula', telefone: '11999999999' })
-    expect(result).toEqual({ id: '1', nome: 'Ana Paula', bairros: [] })
+    const result = await updateLead('1', {
+      nome_empresa: 'Empresa Ana Paula',
+      nome_contato: 'Ana Paula',
+      telefone: '11999999999',
+    })
+    expect(result).toEqual({ id: '1', nome_empresa: 'Empresa Ana Paula' })
   })
 
   it('updateLeadPosicao atualiza etapa e posição do lead', async () => {
@@ -99,14 +97,5 @@ describe('leadsService', () => {
     fromMock.mockReturnValue(chainable({ error: null }))
     await expect(deleteLead('1')).resolves.toBeUndefined()
     expect(fromMock).toHaveBeenCalledWith('leads')
-  })
-
-  it('listBairros retorna nomes de bairros do corretor', async () => {
-    fromMock.mockReturnValue(
-      chainable({ data: [{ nome: 'Centro' }, { nome: 'Zona Sul' }], error: null })
-    )
-    const result = await listBairros()
-    expect(fromMock).toHaveBeenCalledWith('bairros')
-    expect(result).toEqual(['Centro', 'Zona Sul'])
   })
 })

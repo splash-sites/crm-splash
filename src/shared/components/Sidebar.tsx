@@ -1,11 +1,4 @@
-import {
-  CalendarDays,
-  Kanban,
-  LayoutDashboard,
-  MessageCircle,
-  PhoneCall,
-  Settings,
-} from 'lucide-react'
+import { Kanban, LayoutDashboard, MessageCircle, PhoneCall, Settings } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 
@@ -13,7 +6,6 @@ const NAV_ITEMS = [
   { label: 'Dashboard', icon: LayoutDashboard, to: '/dashboard' },
   { label: 'Funil de leads', icon: Kanban, to: '/funil' },
   { label: 'Falar hoje', icon: PhoneCall, to: '/falar-hoje' },
-  { label: 'Agenda de visitas', icon: CalendarDays, to: '/agenda' },
   { label: 'Conversas', icon: MessageCircle, to: null },
 ] as const
 

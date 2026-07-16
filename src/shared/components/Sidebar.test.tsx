@@ -13,7 +13,6 @@ describe('Sidebar', () => {
     expect(screen.getByText('Dashboard')).toBeInTheDocument()
     expect(screen.getByText('Funil de leads')).toBeInTheDocument()
     expect(screen.getByText('Falar hoje')).toBeInTheDocument()
-    expect(screen.getByText('Agenda de visitas')).toBeInTheDocument()
     expect(screen.getByText('Conversas')).toBeInTheDocument()
     expect(screen.getByText('Configurações')).toBeInTheDocument()
   })
@@ -32,10 +31,6 @@ describe('Sidebar', () => {
     expect(screen.getByRole('link', { name: /Falar hoje/ })).toHaveAttribute(
       'href',
       '/falar-hoje'
-    )
-    expect(screen.getByRole('link', { name: /Agenda de visitas/ })).toHaveAttribute(
-      'href',
-      '/agenda'
     )
     expect(screen.queryByRole('link', { name: /Conversas/ })).not.toBeInTheDocument()
     expect(screen.getByText('Conversas').closest('span')).toHaveAttribute(

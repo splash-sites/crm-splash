@@ -9,7 +9,7 @@ vi.mock('../hooks/useDashboard', () => ({
 
 const { DashboardPanel } = await import('./DashboardPanel')
 
-const kpis: Kpis = { leadsAtivos: 10, taxaConversao: 0.25, leadsVencidos: 2, visitasSemana: 4 }
+const kpis: Kpis = { leadsAtivos: 10, taxaConversao: 0.25, leadsVencidos: 2 }
 
 function mockUseDashboard(overrides: Partial<ReturnType<typeof useDashboardMock>> = {}) {
   useDashboardMock.mockReturnValue({

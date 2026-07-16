@@ -5,7 +5,7 @@ import {
   calcularOrigem,
   calcularTendencia,
 } from '../lib/dashboardMetrics'
-import { listLeadsResumo, listVisitasResumo } from '../services/dashboardService'
+import { listLeadsResumo } from '../services/dashboardService'
 import type { FunilItem, Kpis, OrigemItem, TendenciaItem } from '../types/dashboard'
 
 export function useDashboard() {
@@ -21,9 +21,9 @@ export function useDashboard() {
       setLoading(true)
       setError(null)
       try {
-        const [leads, visitas] = await Promise.all([listLeadsResumo(), listVisitasResumo()])
+        const leads = await listLeadsResumo()
         const agora = new Date()
-        setKpis(calcularKpis(leads, visitas, agora))
+        setKpis(calcularKpis(leads, agora))
         setFunil(calcularFunil(leads))
         setOrigem(calcularOrigem(leads))
         setTendencia(calcularTendencia(leads, agora))

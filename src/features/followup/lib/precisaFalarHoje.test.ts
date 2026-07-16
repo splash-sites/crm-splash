@@ -6,14 +6,13 @@ function leadBase(overrides: Partial<Lead> = {}): Lead {
   return {
     id: '1',
     corretor_id: 'user-1',
-    nome: 'Ana',
+    nome_empresa: 'Empresa Ana',
+    nome_contato: 'Ana',
     telefone: '11999999999',
     email: null,
     origem: null,
-    tipo_imovel: null,
-    finalidade: null,
-    bairros: [],
-    faixa_preco: null,
+    produto_interesse: null,
+    ticket_estimado: null,
     etapa: 'novo',
     posicao: 0,
     motivo_perda: null,
@@ -40,11 +39,6 @@ describe('precisaFalarHoje', () => {
 
   it('false para lead fechado, mesmo com proximo_contato_em vencido', () => {
     const lead = leadBase({ etapa: 'fechado', proximo_contato_em: '2026-01-01T00:00:00.000Z' })
-    expect(precisaFalarHoje(lead, new Date('2026-01-02T00:00:00.000Z'))).toBe(false)
-  })
-
-  it('false para lead perdido, mesmo com proximo_contato_em vencido', () => {
-    const lead = leadBase({ etapa: 'perdido', proximo_contato_em: '2026-01-01T00:00:00.000Z' })
     expect(precisaFalarHoje(lead, new Date('2026-01-02T00:00:00.000Z'))).toBe(false)
   })
 })

@@ -25,22 +25,16 @@ beforeEach(() => {
 })
 
 describe('listLeadsAtivos', () => {
-  it('busca leads excluindo fechado/perdido e achata bairros', async () => {
+  it('busca leads excluindo fechado', async () => {
     fromMock.mockReturnValue(
       chainable({
-        data: [
-          {
-            id: '1',
-            etapa: 'novo',
-            lead_bairros: [{ bairros: { nome: 'Centro' } }],
-          },
-        ],
+        data: [{ id: '1', etapa: 'novo' }],
         error: null,
       })
     )
     const result = await listLeadsAtivos()
     expect(fromMock).toHaveBeenCalledWith('leads')
-    expect(result).toEqual([{ id: '1', etapa: 'novo', bairros: ['Centro'] }])
+    expect(result).toEqual([{ id: '1', etapa: 'novo' }])
   })
 
   it('lança erro quando supabase retorna error', async () => {

@@ -23,14 +23,13 @@ function leadBase(overrides: Partial<Lead> = {}): Lead {
   return {
     id: '1',
     corretor_id: 'user-1',
-    nome: 'Ana',
+    nome_empresa: 'Empresa Ana',
+    nome_contato: 'Ana',
     telefone: '11999999999',
     email: null,
     origem: null,
-    tipo_imovel: null,
-    finalidade: null,
-    bairros: [],
-    faixa_preco: null,
+    produto_interesse: null,
+    ticket_estimado: null,
     etapa: 'novo',
     posicao: 0,
     motivo_perda: null,
@@ -76,11 +75,14 @@ describe('FollowUpPanel', () => {
 
   it('renderiza um item por lead', () => {
     mockUseFollowUp({
-      leads: [leadBase({ id: '1', nome: 'Ana' }), leadBase({ id: '2', nome: 'Bruno' })],
+      leads: [
+        leadBase({ id: '1', nome_empresa: 'Empresa Ana' }),
+        leadBase({ id: '2', nome_empresa: 'Empresa Bruno' }),
+      ],
     })
     render(<FollowUpPanel />)
-    expect(screen.getByText('Ana')).toBeInTheDocument()
-    expect(screen.getByText('Bruno')).toBeInTheDocument()
+    expect(screen.getByText('Empresa Ana')).toBeInTheDocument()
+    expect(screen.getByText('Empresa Bruno')).toBeInTheDocument()
   })
 
   it('renderiza o calendário', () => {

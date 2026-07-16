@@ -58,15 +58,16 @@ export function LeadCard({ lead, onDelete, onEdit }: LeadCardProps) {
           <button
             type="button"
             className="block w-full cursor-pointer rounded text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-            aria-label={`Editar ${lead.nome}`}
-            title={lead.nome}
+            aria-label={`Editar ${lead.nome_empresa}`}
+            title={lead.nome_empresa}
             onClick={() => onEdit(lead)}
           >
-            <span className="block truncate font-medium">{lead.nome}</span>
+            <span className="block truncate font-medium">{lead.nome_empresa}</span>
+            <span className="block truncate text-muted-foreground">{lead.nome_contato}</span>
           </button>
           <WhatsAppLink
             telefone={lead.telefone}
-            className="block text-muted-foreground hover:text-foreground"
+            className="inline-block text-muted-foreground hover:text-foreground"
           />
         </div>
       </div>
@@ -87,7 +88,7 @@ export function LeadCard({ lead, onDelete, onEdit }: LeadCardProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir lead?</AlertDialogTitle>
             <AlertDialogDescription>
-              Isso remove {lead.nome} e todo o histórico associado. Não pode ser desfeito.
+              Isso remove {lead.nome_empresa} e todo o histórico associado. Não pode ser desfeito.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

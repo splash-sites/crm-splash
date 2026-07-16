@@ -8,10 +8,6 @@ vi.mock('../hooks/useLeads', () => ({
   useLeads: () => useLeadsMock(),
 }))
 
-vi.mock('../services/leadsService', () => ({
-  listBairros: vi.fn().mockResolvedValue([]),
-}))
-
 const toastSuccessMock = vi.fn()
 const toastErrorMock = vi.fn()
 vi.mock('sonner', () => ({
@@ -26,14 +22,13 @@ const { KanbanBoard } = await import('./KanbanBoard')
 const lead: Lead = {
   id: '1',
   corretor_id: 'user-1',
-  nome: 'Ana',
+  nome_empresa: 'Empresa Ana',
+  nome_contato: 'Ana',
   telefone: '11999999999',
   email: null,
   origem: null,
-  tipo_imovel: null,
-  finalidade: null,
-  bairros: [],
-  faixa_preco: null,
+  produto_interesse: null,
+  ticket_estimado: null,
   etapa: 'novo',
   posicao: 0,
   motivo_perda: null,
@@ -75,13 +70,14 @@ describe('KanbanBoard', () => {
     expect(screen.getByTestId('kanban-column-novo')).toContainElement(
       screen.getByTestId('lead-card-1')
     )
-    expect(screen.getByTestId('kanban-column-em_contato')).toBeInTheDocument()
-    expect(screen.getByTestId('kanban-column-perdido')).toBeInTheDocument()
+    expect(screen.getByTestId('kanban-column-contactado')).toBeInTheDocument()
+    expect(screen.getByTestId('kanban-column-qualificando')).toBeInTheDocument()
+    expect(screen.getByTestId('kanban-column-fechado')).toBeInTheDocument()
   })
 
   it('ordena os leads da coluna por posicao, não pela ordem do array', () => {
-    const primeiro = { ...lead, id: '1', nome: 'Segundo na tela', posicao: 100 }
-    const segundo = { ...lead, id: '2', nome: 'Primeiro na tela', posicao: 10 }
+    const primeiro = { ...lead, id: '1', nome_empresa: 'Segundo na tela', posicao: 100 }
+    const segundo = { ...lead, id: '2', nome_empresa: 'Primeiro na tela', posicao: 10 }
     mockUseLeads({ leads: [primeiro, segundo] })
     render(<KanbanBoard />)
 
@@ -133,16 +129,17 @@ describe('KanbanBoard', () => {
     render(<KanbanBoard />)
     await user.click(screen.getByRole('button', { name: '+ Novo Lead' }))
     expect(screen.getByText('Novo lead', { selector: '[data-slot="dialog-title"]' })).toBeInTheDocument()
-    expect(screen.getByLabelText('Nome')).toHaveValue('')
+    expect(screen.getByLabelText('Nome da empresa')).toHaveValue('')
   })
 
   it('abre modal de edição pré-preenchido ao clicar no lead', async () => {
     mockUseLeads()
     const user = userEvent.setup()
     render(<KanbanBoard />)
-    await user.click(screen.getByRole('button', { name: 'Editar Ana' }))
+    await user.click(screen.getByRole('button', { name: 'Editar Empresa Ana' }))
     expect(screen.getByText('Editar lead')).toBeInTheDocument()
-    expect(screen.getByLabelText('Nome')).toHaveValue('Ana')
+    expect(screen.getByLabelText('Nome da empresa')).toHaveValue('Empresa Ana')
+    expect(screen.getByLabelText('Nome do contato')).toHaveValue('Ana')
   })
 
   it('chama editLead ao salvar edição', async () => {
@@ -150,13 +147,13 @@ describe('KanbanBoard', () => {
     mockUseLeads({ editLead })
     const user = userEvent.setup()
     render(<KanbanBoard />)
-    await user.click(screen.getByRole('button', { name: 'Editar Ana' }))
-    await user.clear(screen.getByLabelText('Nome'))
-    await user.type(screen.getByLabelText('Nome'), 'Ana Paula')
+    await user.click(screen.getByRole('button', { name: 'Editar Empresa Ana' }))
+    await user.clear(screen.getByLabelText('Nome do contato'))
+    await user.type(screen.getByLabelText('Nome do contato'), 'Ana Paula')
     await user.click(screen.getByRole('button', { name: 'Salvar' }))
     expect(editLead).toHaveBeenCalledWith(
       '1',
-      expect.objectContaining({ nome: 'Ana Paula', telefone: '11999999999' })
+      expect.objectContaining({ nome_contato: 'Ana Paula', telefone: '11999999999' })
     )
   })
 
@@ -166,7 +163,8 @@ describe('KanbanBoard', () => {
     const user = userEvent.setup()
     render(<KanbanBoard />)
     await user.click(screen.getByRole('button', { name: '+ Novo Lead' }))
-    await user.type(screen.getByLabelText('Nome'), 'Bruno')
+    await user.type(screen.getByLabelText('Nome da empresa'), 'Empresa Bruno')
+    await user.type(screen.getByLabelText('Nome do contato'), 'Bruno')
     await user.type(screen.getByLabelText('Telefone'), '11988887777')
     await user.click(screen.getByRole('button', { name: 'Salvar' }))
     expect(addLead).toHaveBeenCalled()
