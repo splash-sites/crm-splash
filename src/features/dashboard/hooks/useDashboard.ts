@@ -3,16 +3,22 @@ import {
   calcularFunil,
   calcularKpis,
   calcularOrigem,
-  calcularTendencia,
+  calcularProduto,
+  calcularTempoPorEtapa,
 } from '../lib/dashboardMetrics'
-import { listLeadsResumo } from '../services/dashboardService'
-import type { FunilItem, Kpis, OrigemItem, TendenciaItem } from '../types/dashboard'
+import {
+  listEtapaHistorico,
+  listLeadIdsComInteracao,
+  listLeadsResumo,
+} from '../services/dashboardService'
+import type { FunilItem, Kpis, OrigemItem, ProdutoItem, TempoEtapaItem } from '../types/dashboard'
 
 export function useDashboard() {
   const [kpis, setKpis] = useState<Kpis | null>(null)
   const [funil, setFunil] = useState<FunilItem[]>([])
   const [origem, setOrigem] = useState<OrigemItem[]>([])
-  const [tendencia, setTendencia] = useState<TendenciaItem[]>([])
+  const [produto, setProduto] = useState<ProdutoItem[]>([])
+  const [tempoPorEtapa, setTempoPorEtapa] = useState<TempoEtapaItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -21,12 +27,17 @@ export function useDashboard() {
       setLoading(true)
       setError(null)
       try {
-        const leads = await listLeadsResumo()
+        const [leads, leadIdsComInteracao, historico] = await Promise.all([
+          listLeadsResumo(),
+          listLeadIdsComInteracao(),
+          listEtapaHistorico(),
+        ])
         const agora = new Date()
-        setKpis(calcularKpis(leads, agora))
+        setKpis(calcularKpis(leads, leadIdsComInteracao, agora))
         setFunil(calcularFunil(leads))
         setOrigem(calcularOrigem(leads))
-        setTendencia(calcularTendencia(leads, agora))
+        setProduto(calcularProduto(leads))
+        setTempoPorEtapa(calcularTempoPorEtapa(historico, agora))
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Erro ao carregar dashboard')
       } finally {
@@ -36,5 +47,5 @@ export function useDashboard() {
     carregar()
   }, [])
 
-  return { kpis, funil, origem, tendencia, loading, error }
+  return { kpis, funil, origem, produto, tempoPorEtapa, loading, error }
 }

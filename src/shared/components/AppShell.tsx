@@ -21,7 +21,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex h-svh flex-col">
       <header className="flex shrink-0 items-center justify-between border-b border-border p-4">
-        <span className="font-medium">Vende.ai</span>
+        <span className="font-medium">CRM Splash</span>
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <DropdownMenu>
